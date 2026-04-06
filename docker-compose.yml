@@ -1,0 +1,51 @@
+services:
+    #llm
+    ollama:
+        image: ollama/ollama
+        container_name: ollama
+        network_mode: "service:tailscale"
+        volumes:
+          - ./ollama_data:/root/.ollama
+        depends_on: 
+          - tailscale
+        tty: true
+        restart: unless-stopped
+
+    #frontend display
+    open-webui:
+        image: ghcr.io/open-webui/open-webui:main
+        container_name: open-webui
+        network_mode: "service:tailscale"
+        #ports isnt added here because both ollama and openwebui use tailnet so ports are managed through tailscale
+        environment:
+        - OLLAMA_BASE_URL=http://localhost:11434 #because now ollama and openwebui share tailnet stack
+        - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}
+        volumes:
+        - open-webui_data:/app/backend/data
+        depends_on:
+        - tailscale
+        - ollama
+        restart: unless-stopped
+
+    #vpn tunnel 
+    tailscale:
+        image: tailscale/tailscale:latest
+        container_name: tailscale
+        hostname: local-llm #this is the container name for tailscale 
+        ports: 
+          - "3000:8080" #host:container, this is for openwebui
+        environment:
+          - TS_AUTHKEY=${TS_AUTHKEY}
+          - TS_STATE_DIR=/var/lib/tailscale
+        volumes:
+          - tailscale_data:/var/lib/tailscale
+          - /dev/net/tun:/dev/net/tun
+        cap_add:
+          - NET_ADMIN
+          - SYS_MODULE
+        restart: unless-stopped
+
+volumes:
+    ollama_data: 
+    open-webui_data: 
+    tailscale_data: 
