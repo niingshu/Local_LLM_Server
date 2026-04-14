@@ -1,0 +1,7 @@
+apiVersion: apps/v1
+kind: ConfigMap
+metadata:
+  name: webui-config
+  namespace: default
+data:
+  OLLAMA_BASE_URL: "http://localhost:11434"
