@@ -1,0 +1,43 @@
+#deployment 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama-deployment
+  labels:
+    app: ollama
+spec:
+  replicas: 1 #since only one ec2 t3.small
+  selector:
+    matchLabels:
+      app: ollama
+  template: #pods
+    metadata:
+      labels:
+        app: ollama
+    spec:
+      containers:
+      - name: ollama
+        image: ollama/ollama
+        ports:
+        - containerPort: 11434
+        volumeMounts: #attaches specific k8s volume to a path inside container file
+        - name: ollama-data
+          mountPath: /root/.ollama #so the data is persistent
+      volumes: #reference pvc
+      - name: ollama-data
+        persistentVolumeClaim:
+          claimName: ollama-pvc 
+---
+#service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ollama-service
+spec:
+  selector:
+    app: ollama #needs to match my pod lable
+  ports:
+    - protocol: TCP
+      port: 11434
+      targetPort: 11434 #same container port
+
