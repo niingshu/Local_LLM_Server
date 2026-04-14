@@ -1,0 +1,56 @@
+#deployment 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webui-deployment
+  labels:
+    app: webui
+spec:
+  replicas: 1 #since only one ec2 t3.small
+  selector:
+    matchLabels:
+      app: webui
+  template: #pods
+    metadata:
+      labels:
+        app: webui
+    spec:
+      containers:
+      - name: webui
+        image: ghcr.io/open-webui/open-webui:main
+        ports:
+        - containerPort: 8080
+        env:
+        - name: OLLAMA_BASE_URL #env var in container
+          valueFrom: 
+            configMapKeyRef: 
+              name: webui-config #metadata name of configMap
+              key: OLLAMA_BASE_URL
+        - name: WEBUI_SECRET_KEY 
+          valueFrom: 
+            secretKeyRef: 
+              name: webui-secret 
+              key: WEBUI_AUTH_KEY
+        volumeMounts: #attaches specific k8s volume to a path inside container file
+        - name: webui-data
+          mountPath: /app/backend/data
+      volumes: #reference pvc
+      - name: webui-data
+        persistentVolumeClaim:
+          claimName: webui-pvc 
+---
+#service
+apiVersion: v1
+kind: Service
+metadata:
+  name: webui-service
+spec:
+  type: NodePort #accessible from outside cluster
+  selector:
+    app: webui #needs to match my pod lable
+  ports:
+    - protocol: TCP
+      port: 8080 #port the other services talk to
+      targetPort: 8080 #same container port
+      nodePort: 30000 
+
