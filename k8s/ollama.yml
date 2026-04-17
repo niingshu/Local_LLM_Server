@@ -20,6 +20,9 @@ spec:
         image: ollama/ollama
         ports:
         - containerPort: 11434
+        env: 
+        - name: OLLAMA_MODELS
+          values: /data/models
         volumeMounts: #attaches specific k8s volume to a path inside container file
         - name: ollama-data
           mountPath: /root/.ollama #so the data is persistent
