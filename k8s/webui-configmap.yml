@@ -4,4 +4,6 @@ metadata:
   name: webui-config
   namespace: default
 data:
-  OLLAMA_BASE_URL: "http://ollama-service.default.svc.cluster.local:11434"
+  OLLAMA_BASE_URL: "http://ollama-service:11434" #use this when they are in same namespace
+  #OLLAMA_BASE_URL: "http://ollama-service.default.svc.cluster.local:11434" when they are 
+  #in different namespaces
