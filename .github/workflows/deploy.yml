@@ -9,24 +9,17 @@ jobs:
         - name: Checkout repository #provide descriptive label for specific step
           uses: actions/checkout@v4 #call pre-defined resuable action
 
-        - name: Find target folder #careful for the IP where one is accessing into EC2
-          uses: appleboy/scp-action@v1
-          with: 
-            key: |
-                ${{ secrets.EC2_SSH_KEY }}
-            host: ${{ secrets.EC2_HOST }}
-            username: ${{ secrets.EC2_NAME }}
-            #GitHub Actions cannot reach this port, change to Anywhere so Github Actions can reach by its IP
-            port: ${{ secrets.APPLE_BOY_PORT }} 
-            source: "k8s/" #tells scp to take the /k8s from githut action
-            target: /home/ubuntu/ #and copies it to this path on ec2 ubuntu
+        - name: Setup SSH key 
+          run: |
+            mkdir -p ~/.ssh
+            echo "${{ secrets.EC2_SSH_KEY }}" >~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+            ssh-keyscan -H ${{ secrets.EC2_HOST }}
         
-        - name: Execute apply to k3s on Ubuntu EC2
-          uses: appleboy/ssh-action@v1
-          with: 
-            key: ${{ secrets.EC2_SSH_KEY }}
-            host: ${{ secrets.EC2_HOST }}
-            username: ${{ secrets.EC2_NAME }}
-            port: ${{ secrets.APPLE_BOY_PORT }}
-            script: |
-                sudo k3s kubectl apply -f /home/ubuntu/k8s -R
+        - name: Copy k8s files to EC2
+          run: |
+            scp -i ~/.ssh/id_rsa -r k8s/ ${{ secrets.EC2_NAME }}@${{ secrets.EC2_HOST }}:/home/ubuntu/
+        
+        - name: Deploy to k3s
+          run: |
+            ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_NAME }}@${{ secrets.EC2_HOST }} "sudo k3s kubectl apply -f /home/ubuntu/k8s -R"
