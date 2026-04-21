@@ -17,7 +17,7 @@ jobs:
             username: ${{ secrets.EC2_NAME }}
             port: ${{ secrets.APPLE_BOY_PORT }} 
             source: "k8s/" #tells scp to take the /k8s from githut action
-            target: /home/ubuntu/k8s #and copies it to this path on ec2 ubuntu
+            target: /home/ubuntu/ #and copies it to this path on ec2 ubuntu
         
         - name: Execute apply to k3s on Ubuntu EC2
           uses: appleboy/ssh-action@v1
