@@ -9,13 +9,13 @@ jobs:
         - name: Checkout repository #provide descriptive label for specific step
           uses: actions/checkout@v4 #call pre-defined resuable action
 
-        - name: Find target folder 
+        - name: Find target folder #careful for the IP where one is accessing into EC2
           uses: appleboy/scp-action@v1
           with: 
             key: ${{ secrets.EC2_SSH_KEY }}
             host: ${{ secrets.EC2_HOST }}
             username: ${{ secrets.EC2_NAME }}
-            port: ${{ secrets.APPLE_BOY_PORT }} 
+            port: ${{ secrets.APPLE_BOY_PORT }} #GitHub Actions cannot reach this port
             source: "k8s/" #tells scp to take the /k8s from githut action
             target: /home/ubuntu/ #and copies it to this path on ec2 ubuntu
         
