@@ -18,8 +18,8 @@ jobs:
         
         - name: Copy k8s files to EC2
           run: |
-            scp -i ~/.ssh/id_rsa -r k8s/ ${{ secrets.EC2_NAME }}@${{ secrets.EC2_HOST }}:/home/ubuntu/
+            scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r k8s/ ${{ secrets.EC2_NAME }}@${{ secrets.EC2_HOST }}:/home/ubuntu/
         
         - name: Deploy to k3s
           run: |
-            ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_NAME }}@${{ secrets.EC2_HOST }} "sudo k3s kubectl apply -f /home/ubuntu/k8s -R"
+            ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.EC2_NAME }}@${{ secrets.EC2_HOST }} "sudo k3s kubectl apply -f /home/ubuntu/k8s -R"
