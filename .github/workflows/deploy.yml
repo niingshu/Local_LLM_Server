@@ -12,7 +12,8 @@ jobs:
         - name: Find target folder #careful for the IP where one is accessing into EC2
           uses: appleboy/scp-action@v1
           with: 
-            key: ${{ secrets.EC2_SSH_KEY }}
+            key: |
+                ${{ secrets.EC2_SSH_KEY }}
             host: ${{ secrets.EC2_HOST }}
             username: ${{ secrets.EC2_NAME }}
             #GitHub Actions cannot reach this port, change to Anywhere so Github Actions can reach by its IP
