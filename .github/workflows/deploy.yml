@@ -15,6 +15,10 @@ jobs:
             echo "${{ secrets.EC2_KEY }}" | base64 --decode > ~/.ssh/id_rsa
             chmod 600 ~/.ssh/id_rsa
         
+        - name: Debug key
+          run: |
+            ssh-keygen -l -f ~/.ssh/id_rsa
+        
         - name: Copy k8s files to EC2
           run: |
             scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r k8s/ ${{ secrets.EC2_NAME }}@${{ secrets.EC2_HOST }}:/home/ubuntu/
